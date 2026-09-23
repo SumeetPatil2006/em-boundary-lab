@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EM Boundary Lab - Electromagnetic Field Boundary Conditions</title>
+  <meta name="description" content="Rigorous interactive educational simulation demonstrating Maxwell's electromagnetic boundary conditions across material interfaces.">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%232563eb'/><path d='M7 12h10M12 7l5 5-5 5' stroke='%23ffffff' stroke-width='2' fill='none'/></svg>">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">EM Boundary Lab</h1>
+      <p class="app-subtitle">Study of Boundary Conditions for Electric and Magnetic Fields</p>
+    </header>
+
+    <!-- Main 3-Column Laboratory Layout -->
+    <main class="lab-main-layout">
+      <!-- 1. LEFT PANEL: CONTROLS (~24%) -->
+      <aside class="lab-col col-controls" aria-label="Simulation Controls">
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2>Simulation Controls</h2>
+          </div>
+
+          <div class="panel-content">
+            <!-- Material 1 Card -->
+            <div class="control-box mat1-box">
+              <div class="box-title">
+                <span>Material 1 (Upper)</span>
+                <span class="pill-tag blue">Incident</span>
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-label-row">
+                  <label for="slider-er1">Relative Permittivity (εᵣ₁)</label>
+                  <span id="badge-er1" class="val-num">1.0</span>
+                </div>
+                <input id="slider-er1" type="range" min="1.0" max="10.0" step="0.1" value="1.0">
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-label-row">
+                  <label for="slider-ur1">Relative Permeability (μᵣ₁)</label>
+                  <span id="badge-ur1" class="val-num">1.0</span>
+                </div>
+                <input id="slider-ur1" type="range" min="1.0" max="10.0" step="0.1" value="1.0">
+              </div>
+            </div>
+
+            <!-- Material 2 Card -->
+            <div class="control-box mat2-box">
+              <div class="box-title">
+                <span>Material 2 (Lower)</span>
+                <span class="pill-tag orange">Transmitted</span>
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-label-row">
+                  <label for="slider-er2">Relative Permittivity (εᵣ₂)</label>
+                  <span id="badge-er2" class="val-num">4.0</span>
+                </div>
+                <input id="slider-er2" type="range" min="1.0" max="10.0" step="0.1" value="4.0">
+              </div>
+
+              <div class="slider-item">
+                <div class="slider-label-row">
+                  <label for="slider-ur2">Relative Permeability (μᵣ₂)</label>
+                  <span id="badge-ur2" class="val-num">1.0</span>
+                </div>
+                <input id="slider-ur2" type="range" min="1.0" max="10.0" step="0.1" value="1.0">
+              </div>
+            </div>
+
+            <!-- Incident Field Card with Field Type Switcher -->
+            <div class="control-box field-box">
+              <div class="box-title">
+                <span>Incident Field</span>
+                <span id="badge-field-type" class="pill-tag slate">Electric (E)</span>
+              </div>
+
+              <!-- Field Selector Switch -->
+              <div class="field-type-selector">
+                <button id="btn-field-electric" class="field-tab-btn active" type="button">Electric (E, D)</button>
+                <button id="btn-field-magnetic" class="field-tab-btn" type="button">Magnetic (H, B)</button>
+              </div>
+
+              <!-- Magnitude Slider (Updates E1 or H1 depending on active field) -->
+              <div class="slider-item" style="margin-top: 10px;">
+                <div class="slider-label-row">
+                  <label id="label-field-mag" for="slider-f1">Magnitude (E₁)</label>
+                  <span id="badge-f1" class="val-num">100 V/m</span>
+                </div>
+                <input id="slider-f1" type="range" min="20" max="250" step="5" value="100">
+              </div>
+
+              <!-- Angle Slider (Strictly measured from the normal) -->
+              <div class="slider-item">
+                <div class="slider-label-row">
+                  <label for="slider-theta1">Angle from Normal (θ₁)</label>
+                  <span id="badge-theta1" class="val-num">35°</span>
+                </div>
+                <input id="slider-theta1" type="range" min="5" max="75" step="1" value="35">
+              </div>
+            </div>
+
+            <!-- Presets Group -->
+            <div class="presets-box">
+              <span class="presets-title">Quick Presets</span>
+              <div class="preset-buttons-group">
+                <button id="preset-air-air" class="preset-btn" data-preset="air_to_air">Air → Air (εᵣ₁=1, εᵣ₂=1)</button>
+                <button id="preset-air-glass" class="preset-btn active" data-preset="air_to_glass">Air → Glass (εᵣ₁=1, εᵣ₂=4)</button>
+                <button id="preset-dielectric" class="preset-btn" data-preset="dielectric_to_dielectric">Dielectric → Dielectric (εᵣ₁=2, εᵣ₂=6)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 2. CENTER PANEL: HERO VISUALIZATION (~52%) -->
+      <section class="lab-col col-visualization" aria-label="Dynamic Field Visualization">
+        <div class="vis-hero-card">
+          <!-- Top Status Bar -->
+          <div class="vis-hero-header">
+            <div class="live-indicator-wrapper">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span class="live-text">Live Simulation</span>
+              <span class="live-subtext">&bull; Updates automatically on slider movement</span>
+            </div>
+
+            <div class="vis-actions">
+              <button id="btn-toggle-components" class="btn-toggle active" title="Toggle Tangential and Normal Components">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 3v18h18"/>
+                </svg>
+                Components (Normal &amp; Tangential)
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic High-DPI Canvas Viewport -->
+          <div id="vis-canvas-container" class="vis-canvas-viewport">
+            <canvas id="boundary-canvas"></canvas>
+          </div>
+
+          <!-- Helpful Interactive Callout -->
+          <div class="vis-interactive-hint">
+            <span class="hint-icon">💡</span>
+            <span id="vis-hint-text">
+              <strong>Try it yourself:</strong> Drag the <strong>Permittivity of Material 2 (εᵣ₂)</strong> slider on the left to watch the electric field vector bend away from the normal.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. RIGHT PANEL: RESULTS & VERIFICATION (~24%) -->
+      <aside class="lab-col col-results" aria-label="Boundary Conditions Verification">
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2>Boundary Conditions</h2>
+          </div>
+
+          <div class="panel-content">
+            <!-- 1. Tangential Electric Field -->
+            <div id="card-tangential-e" class="result-card active-card">
+              <div class="result-top">
+                <span class="result-label">Tangential Electric Field</span>
+                <span class="badge-status pass">✓ Satisfied</span>
+              </div>
+              <div class="result-formula">E₁ₜ = E₂ₜ</div>
+              <div id="val-tangential-e" class="result-values">
+                E₁ₜ = <strong>57.4 V/m</strong> &nbsp;|&nbsp; E₂ₜ = <strong>57.4 V/m</strong>
+              </div>
+              <div class="result-note">Faraday Law: ∮ E·dl = 0 (Continuous across boundary)</div>
+            </div>
+
+            <!-- 2. Normal Electric Flux Density -->
+            <div id="card-normal-d" class="result-card active-card">
+              <div class="result-top">
+                <span class="result-label">Normal Electric Flux Density</span>
+                <span class="badge-status pass">✓ Satisfied</span>
+              </div>
+              <div class="result-formula">D₁ₙ = D₂ₙ</div>
+              <div id="val-normal-d" class="result-values">
+                D₁ₙ = <strong>0.725 nC/m²</strong> &nbsp;|&nbsp; D₂ₙ = <strong>0.725 nC/m²</strong>
+              </div>
+              <div class="result-note">Gauss Law: D₂ₙ − D₁ₙ = ρs (Continuous when ρs = 0)</div>
+            </div>
+
+            <!-- 3. Normal Magnetic Flux Density -->
+            <div id="card-normal-b" class="result-card">
+              <div class="result-top">
+                <span class="result-label">Normal Magnetic Flux Density</span>
+                <span class="badge-status pass">✓ Satisfied</span>
+              </div>
+              <div class="result-formula">B₁ₙ = B₂ₙ</div>
+              <div id="val-normal-b" class="result-values">
+                B₁ₙ = <strong>1.03 µT</strong> &nbsp;|&nbsp; B₂ₙ = <strong>1.03 µT</strong>
+              </div>
+              <div class="result-note">Gauss Law for Magnetism: ∇·B = 0 (No magnetic monopoles)</div>
+            </div>
+
+            <!-- 4. Tangential Magnetic Field -->
+            <div id="card-tangential-h" class="result-card">
+              <div class="result-top">
+                <span class="result-label">Tangential Magnetic Field</span>
+                <span class="badge-status pass">✓ Satisfied</span>
+              </div>
+              <div class="result-formula">H₁ₜ = H₂ₜ</div>
+              <div id="val-tangential-h" class="result-values">
+                H₁ₜ = <strong>0.574 A/m</strong> &nbsp;|&nbsp; H₂ₜ = <strong>0.574 A/m</strong>
+              </div>
+              <div class="result-note">Ampère Law: H₂ₜ − H₁ₜ = Js (Continuous when Js = 0)</div>
+            </div>
+
+            <!-- Law of Refraction Card -->
+            <div class="result-card refraction-card">
+              <div class="result-top">
+                <span class="result-label">Refraction Law (from Normal)</span>
+                <span class="badge-status pass">✓ Exact</span>
+              </div>
+              <div id="refraction-formula-text" class="result-formula">tan(θ₁) / tan(θ₂) = εᵣ₁ / εᵣ₂</div>
+              <div id="val-refraction-check" class="result-values">
+                tan(θ₁)/tan(θ₂) = <strong>0.2500</strong> &nbsp;|&nbsp; εᵣ₁/εᵣ₂ = <strong>0.2500</strong>
+              </div>
+              <div class="result-note">Derived from tangential continuity &amp; normal flux conservation</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Bottom Section: "What is Happening?" -->
+    <section class="explanation-bottom-card" aria-label="Educational Explanation">
+      <h2>What is happening?</h2>
+      <p class="explanation-lead">
+        When an electromagnetic field reaches the boundary between two different materials, its components cannot change arbitrarily. 
+        Maxwell’s equations define the exact relationships governing the fields on either side of the interface.
+      </p>
+
+      <div class="explanation-steps">
+        <span class="step-chip">Material 1</span>
+        <span class="step-arrow">→</span>
+        <span class="step-chip highlight">Boundary</span>
+        <span class="step-arrow">→</span>
+        <span class="step-chip">Material 2</span>
+      </div>
+
+      <div class="explanation-grid">
+        <div class="explanation-col">
+          <strong>1. Tangential field continuity</strong>
+          <p>The tangential component of the electric field is strictly continuous across the interface: <code>E₁ₜ = E₂ₜ</code> (from Faraday's law ∮ E·dl = 0). Similarly, tangential magnetic field satisfies <code>H₁ₜ = H₂ₜ</code> when there is no surface current sheet (Jₛ = 0).</p>
+        </div>
+        <div class="explanation-col">
+          <strong>2. Normal flux density continuity</strong>
+          <p>The normal component of electric flux density is continuous across an interface bearing no free surface charge (ρₛ = 0): <code>D₁ₙ = D₂ₙ</code>. Normal magnetic flux density is always continuous: <code>B₁ₙ = B₂ₙ</code> because isolated magnetic monopoles do not exist (∇·B = 0).</p>
+        </div>
+        <div class="explanation-col">
+          <strong>3. Field line refraction</strong>
+          <p>Because D = εE, normal continuity requires <code>ε₁E₁ₙ = ε₂E₂ₙ</code>. Combined with <code>E₁ₜ = E₂ₜ</code>, this yields the law of refraction for electric field lines: <code>tan(θ₁)/tan(θ₂) = εᵣ₁/εᵣ₂</code>, where angles θ are measured from the interface normal.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <strong>EM Boundary Lab</strong> &bull; Interactive Educational Demonstration for Electromagnetic Boundary Conditions &bull; SI Units: E [V/m], D [C/m²], H [A/m], B [T]
+    </footer>
+  </div>
+
+  <!-- Application Module Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
